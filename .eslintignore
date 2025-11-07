@@ -1,0 +1,60 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+
+# Logs
+logs/
+*.log
+
+# Coverage reports
+coverage/
+nyc_output/
+.nyc_output/
+
+# Environment files
+.env
+.env.*
+
+# IDE/Editor files
+.vscode/
+.idea/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Cache directories
+.cache/
+.parcel-cache/
+.eslintcache
+
+# Temporary files
+tmp/
+temp/
+
+# TypeScript
+*.tsbuildinfo
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# PM2
+.pm2/
+
+# Test files (if you want to exclude them from linting)
+# *.test.ts
+# *.spec.ts
+
+# Config files that shouldn't be linted
+*.config.js
+*.config.ts
+
+# Migration files (optional - uncomment if using migrations)
+# migrations/
