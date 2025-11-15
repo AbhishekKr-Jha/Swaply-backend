@@ -15,7 +15,16 @@
     "format": "prettier --write \"src/**/*.{ts,js,json,md}\"",
     "format:check": "prettier --check \"src/**/*.{ts,js,json,md}\"",
     "type-check": "tsc --noEmit",
-    "prepare": "husky"
+    "prepare": "husky",
+    "migration:create": "sequelize-cli migration:generate --name",
+    "migration:up": "sequelize-cli db:migrate",
+    "migration:down": "sequelize-cli db:migrate:undo",
+    "migration:down:all": "sequelize-cli db:migrate:undo:all",
+    "migration:status": "sequelize-cli db:migrate:status",
+    "seed:create": "sequelize-cli seed:generate --name",
+    "seed:up": "sequelize-cli db:seed:all",
+    "seed:down": "sequelize-cli db:seed:undo:all",
+    "db:reset": "sequelize-cli db:migrate:undo:all && sequelize-cli db:migrate && sequelize-cli db:seed:all"
   },
   "keywords": [],
   "author": "",

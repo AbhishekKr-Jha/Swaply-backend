@@ -101,7 +101,7 @@ const init = async () => {
       cors: {
         origin: [Env.CORS_ORIGIN],
         credentials: true,
-        additionalHeaders: ['Accept', 'Authorization', 'Content-Type', 'If-None-Match', 'X-Skip-Loader'],
+        additionalHeaders: ['Accept', 'Authorization', 'Content-Type', 'If-None-Match'],
       },
       state: {
         parse: true,
@@ -142,14 +142,14 @@ const init = async () => {
         try {
           const result = await validateRefresh(request);
           if (!result.isValid) {
-            throw new ApiError('Refresh token validation failed', 401);
+            throw new ApiError('Refresh token validation failed', statusCodes.UNAUTHORIZED);
           }
           return h.authenticated({ credentials: result.credentials });
         } catch (error) {
           if (error instanceof ApiError) {
             return h.unauthenticated(error);
           }
-          return h.unauthenticated(new ApiError('Authentication failed', 401));
+          return h.unauthenticated(new ApiError('Authentication failed', statusCodes.UNAUTHORIZED));
         }
       },
     };
