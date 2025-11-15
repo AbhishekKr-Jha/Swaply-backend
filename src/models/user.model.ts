@@ -56,7 +56,7 @@ export default (sequelize: any, DataType: any) => {
       },
       locationGeo: {
         type: DataType.GEOMETRY('POINT'),
-        allowNull: true,
+        allowNull: false,
         validate: {
           isValidCoordinates(value: unknown) {
             if (value && typeof value === 'object' && value !== null) {
@@ -109,6 +109,10 @@ export default (sequelize: any, DataType: any) => {
         type: DataType.STRING(355),
         allowNull: true,
       },
+      birthInfo: {
+        type: DataType.DATE,
+        allowNull: false,
+      },
       profilePictureUrl: {
         type: DataType.STRING,
         allowNull: true,
@@ -123,10 +127,6 @@ export default (sequelize: any, DataType: any) => {
       timestamps: true,
       indexes: [
         {
-          fields: ['locationGeo'],
-          type: 'SPATIAL',
-        },
-        {
           fields: ['latitude', 'longitude'],
           name: 'lat_lng_index',
         },
@@ -139,19 +139,6 @@ export default (sequelize: any, DataType: any) => {
     User.belongsTo(models.Role, {
       foreignKey: 'roleId',
       as: 'role',
-    });
-
-    // Multiple roles through UserRole (for multi-role support)
-    User.hasMany(models.UserRole, {
-      foreignKey: 'userId',
-      as: 'userRoleAssignments',
-    });
-
-    User.belongsToMany(models.Role, {
-      through: models.UserRole,
-      foreignKey: 'userId',
-      otherKey: 'roleId',
-      as: 'roles',
     });
 
     // Direct user permissions (override role permissions)
@@ -189,18 +176,6 @@ export default (sequelize: any, DataType: any) => {
     User.hasMany(models.AuditLog, {
       foreignKey: 'targetUserId',
       as: 'actionsReceived',
-    });
-
-    // Role assignments made by this user
-    User.hasMany(models.UserRole, {
-      foreignKey: 'assignedBy',
-      as: 'roleAssignmentsGranted',
-    });
-
-    // Role revocations made by this user
-    User.hasMany(models.UserRole, {
-      foreignKey: 'revokedBy',
-      as: 'roleAssignmentsRevoked',
     });
 
     // Permission grants made by this user
