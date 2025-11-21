@@ -1,25 +1,27 @@
-export default (sequelize: any, DataType: any) => {
-  const Permission = sequelize.define(
-    'Permission',
-    {
+'use strict';
+
+/** @type {import('sequelize-cli').Migration} */
+export default {
+  async up(queryInterface, Sequelize) {
+    await queryInterface.createTable('Permission', {
       id: {
-        type: DataType.INTEGER,
+        type: Sequelize.INTEGER,
         primaryKey: true,
         autoIncrement: true,
       },
       name: {
-        type: DataType.STRING(100),
+        type: Sequelize.STRING(100),
         allowNull: false,
         unique: true,
         comment: 'Human-readable permission name (e.g., "Edit User Profile")',
       },
       resource: {
-        type: DataType.STRING(50),
+        type: Sequelize.STRING(50),
         allowNull: false,
         comment: 'Resource type (e.g., "user", "product", "order", "payment")',
       },
       action: {
-        type: DataType.ENUM(
+        type: Sequelize.ENUM(
           'create',
           'read',
           'update',
@@ -38,23 +40,23 @@ export default (sequelize: any, DataType: any) => {
         comment: 'Action allowed on the resource',
       },
       scope: {
-        type: DataType.ENUM('own', 'team', 'department', 'organization', 'all'),
+        type: Sequelize.ENUM('own', 'team', 'department', 'organization', 'all'),
         allowNull: false,
         defaultValue: 'own',
         comment: 'Scope of permission - what data can be accessed',
       },
       description: {
-        type: DataType.TEXT,
+        type: Sequelize.TEXT,
         allowNull: true,
         comment: 'Detailed description of what this permission allows',
       },
       category: {
-        type: DataType.STRING(50),
+        type: Sequelize.STRING(50),
         allowNull: true,
         comment: 'Permission category for grouping (e.g., "User Management", "Content", "Financial")',
       },
       permissionGroupId: {
-        type: DataType.INTEGER,
+        type: Sequelize.INTEGER,
         allowNull: true,
         references: {
           model: 'PermissionGroup',
@@ -65,130 +67,84 @@ export default (sequelize: any, DataType: any) => {
         comment: 'Foreign key to the PermissionGroup model for UI organization.',
       },
       isSystem: {
-        type: DataType.BOOLEAN,
+        type: Sequelize.BOOLEAN,
         allowNull: false,
         defaultValue: false,
         comment: 'System permissions cannot be deleted',
       },
       isActive: {
-        type: DataType.BOOLEAN,
+        type: Sequelize.BOOLEAN,
         allowNull: false,
         defaultValue: true,
         comment: 'Inactive permissions are not enforced',
       },
       priority: {
-        type: DataType.INTEGER,
+        type: Sequelize.INTEGER,
         allowNull: false,
         defaultValue: 0,
         comment: 'Priority for permission evaluation (higher = evaluated first)',
       },
       conditions: {
-        type: DataType.JSON,
+        type: Sequelize.JSON,
         allowNull: true,
         comment: 'Advanced conditions for permission (time-based, IP-based, etc.)',
       },
       metadata: {
-        type: DataType.JSON,
+        type: Sequelize.JSON,
         allowNull: true,
         comment: 'Additional flexible metadata for custom permission logic',
       },
       riskLevel: {
-        type: DataType.ENUM('low', 'medium', 'high', 'critical'),
+        type: Sequelize.ENUM('low', 'medium', 'high', 'critical'),
         allowNull: false,
         defaultValue: 'low',
         comment: 'Risk assessment level for audit and compliance',
       },
       requiresMFA: {
-        type: DataType.BOOLEAN,
+        type: Sequelize.BOOLEAN,
         allowNull: false,
         defaultValue: false,
         comment: 'Whether this permission requires multi-factor authentication',
       },
       expiresAt: {
-        type: DataType.DATE,
+        type: Sequelize.DATE,
         allowNull: true,
         comment: 'Optional expiration date for temporary permissions',
       },
       createdBy: {
-        type: DataType.INTEGER,
+        type: Sequelize.INTEGER,
         allowNull: true,
         comment: 'User ID who created this permission',
       },
       updatedBy: {
-        type: DataType.INTEGER,
+        type: Sequelize.INTEGER,
         allowNull: true,
         comment: 'User ID who last updated this permission',
       },
       deletedAt: {
-        type: DataType.DATE,
+        type: Sequelize.DATE,
         allowNull: true,
       },
-    },
-    {
-      tableName: 'Permission',
-      timestamps: true,
-      indexes: [
-        {
-          fields: ['resource', 'action', 'scope'],
-          name: 'idx_permission_ras',
-          comment: 'Composite index for Resource-Action-Scope pattern',
-        },
-        {
-          fields: ['category'],
-          name: 'idx_permission_category',
-        },
-        {
-          fields: ['isActive'],
-          name: 'idx_permission_active',
-        },
-        {
-          fields: ['riskLevel'],
-          name: 'idx_permission_risk',
-        },
-        {
-          fields: ['priority'],
-          name: 'idx_permission_priority',
-        },
-      ],
-    },
-  );
-
-  Permission.associate = (models: any) => {
-    // Many-to-Many with Roles through RolePermission
-    Permission.belongsToMany(models.Role, {
-      through: models.RolePermission,
-      foreignKey: 'permissionId',
-      otherKey: 'roleId',
-      as: 'roles',
     });
 
-    // Direct user permissions (override role permissions)
-    Permission.belongsToMany(models.User, {
-      through: models.UserPermission,
-      foreignKey: 'permissionId',
-      otherKey: 'userId',
-      as: 'users',
+    await queryInterface.addIndex('Permission', ['resource', 'action', 'scope'], {
+      name: 'idx_permission_ras',
     });
-
-    // Audit trail
-    Permission.belongsTo(models.User, {
-      foreignKey: 'createdBy',
-      as: 'creator',
+    await queryInterface.addIndex('Permission', ['isActive'], {
+      name: 'idx_permission_isActive',
     });
-
-    Permission.belongsTo(models.User, {
-      foreignKey: 'updatedBy',
-      as: 'updater',
+    await queryInterface.addIndex('Permission', ['priority'], {
+      name: 'idx_permission_priority',
     });
-
-    // Permission dependencies (some permissions require others)
-    Permission.belongsToMany(models.Permission, {
-      through: 'PermissionDependency',
-      foreignKey: 'permissionId',
-      otherKey: 'requiredPermissionId',
-      as: 'requiredPermissions',
+    await queryInterface.addIndex('Permission', ['riskLevel'], {
+      name: 'idx_permission_riskLevel',
     });
-  };
+    await queryInterface.addIndex('Permission', ['category'], {
+      name: 'idx_permission_category',
+    });
+  },
 
-  return Permission;
+  async down(queryInterface) {
+    await queryInterface.dropTable('Permission');
+  },
 };
