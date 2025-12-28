@@ -7,7 +7,7 @@ import globals from 'globals';
 
 export default [
   {
-    ignores: ['node_modules/**', 'dist/**', 'build/**', 'coverage/**', '*.config.js', '.husky/**'],
+    ignores: ['node_modules/**', 'dist/**', 'build/**', 'coverage/**', '*.config.js'],
   },
   {
     files: ['**/*.{js,mjs,cjs,ts}'],
